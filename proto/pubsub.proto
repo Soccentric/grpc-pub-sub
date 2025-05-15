@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package pubsub;
+
+// Service definition for a publish-subscribe system
+service PubSub {
+  // Publisher sends a message
+  rpc Publish (PublishRequest) returns (PublishResponse) {}
+  
+  // Subscriber listens for messages
+  rpc Subscribe (SubscribeRequest) returns (stream Message) {}
+}
+
+// Request to publish a message
+message PublishRequest {
+  string topic = 1;
+  string content = 2;
+}
+
+// Response from publishing a message
+message PublishResponse {
+  bool success = 1;
+  string message_id = 2;
+}
+
+// Request to subscribe to a topic
+message SubscribeRequest {
+  string topic = 1;
+}
+
+// Message delivered to subscribers
+message Message {
+  string message_id = 1;
+  string topic = 2;
+  string content = 3;
+  int64 timestamp = 4;
+}
