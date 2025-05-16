@@ -19,11 +19,16 @@
  */
 int main(int argc, char** argv) {
     std::string server_address = "0.0.0.0:50051";
+    size_t max_messages = 100;  // Default max messages per topic
     
     // Parse command line arguments
     if (argc > 1) server_address = argv[1];
+    if (argc > 2) max_messages = std::stoul(argv[2]);
     
-    RunServer(server_address);
+    std::cout << "Starting PubSub server on " << server_address << std::endl;
+    std::cout << "Maximum messages per topic: " << max_messages << std::endl;
+    
+    RunServer(server_address, max_messages);
     
     return 0;
 }

@@ -39,6 +39,8 @@ add_custom_command(
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/lib/include)
 include_directories(${CMAKE_SOURCE_DIR}/publisher/include)
+include_directories(${CMAKE_SOURCE_DIR}/publisher1/include)
+include_directories(${CMAKE_SOURCE_DIR}/publisher2/include)
 include_directories(${CMAKE_SOURCE_DIR}/subscriber/include)
 
 # Proto files
@@ -69,6 +71,50 @@ add_executable(publisher
 target_link_libraries(publisher
     publisher_lib
     ${CMAKE_THREAD_LIBS_INIT})
+    
+# Publisher1 library
+add_library(publisher1_lib
+    publisher1/src/publisher.cpp
+    ${PROTO_FILES})
+target_include_directories(publisher1_lib PUBLIC
+    ${CMAKE_SOURCE_DIR}/publisher1/include)
+target_link_libraries(publisher1_lib
+    pubsub_common
+    ${_GRPC_GRPCPP}
+    ${PROTOBUF_LIBRARIES})
+
+# Publisher1 executable
+add_executable(publisher1
+    publisher1/src/main.cpp
+    ${proto_srcs}
+    ${grpc_srcs})
+target_include_directories(publisher1 PUBLIC
+    ${CMAKE_SOURCE_DIR}/publisher1/include)
+target_link_libraries(publisher1
+    publisher1_lib
+    ${CMAKE_THREAD_LIBS_INIT})
+
+# Publisher2 library
+add_library(publisher2_lib
+    publisher2/src/publisher.cpp
+    ${PROTO_FILES})
+target_include_directories(publisher2_lib PUBLIC
+    ${CMAKE_SOURCE_DIR}/publisher2/include)
+target_link_libraries(publisher2_lib
+    pubsub_common
+    ${_GRPC_GRPCPP}
+    ${PROTOBUF_LIBRARIES})
+
+# Publisher2 executable
+add_executable(publisher2
+    publisher2/src/main.cpp
+    ${proto_srcs}
+    ${grpc_srcs})
+target_include_directories(publisher2 PUBLIC
+    ${CMAKE_SOURCE_DIR}/publisher2/include)
+target_link_libraries(publisher2
+    publisher2_lib
+    ${CMAKE_THREAD_LIBS_INIT})
 
 # Subscriber service library
 add_library(pubsub_service
@@ -79,11 +125,30 @@ target_link_libraries(pubsub_service
     ${_GRPC_GRPCPP}
     ${PROTOBUF_LIBRARIES})
 
-# Subscriber executable
+# Subscriber client library
+add_library(subscriber_client
+    subscriber/src/subscriber_client.cpp
+    ${PROTO_FILES})
+target_link_libraries(subscriber_client
+    pubsub_common
+    ${_GRPC_GRPCPP}
+    ${PROTOBUF_LIBRARIES})
+
+# Subscriber server executable
 add_executable(subscriber
     subscriber/src/main.cpp
     ${proto_srcs}
     ${grpc_srcs})
 target_link_libraries(subscriber
     pubsub_service
+    ${CMAKE_THREAD_LIBS_INIT})
+
+# Subscriber client executable
+add_executable(subscriber_client_app
+    subscriber/src/subscriber_client_main.cpp
+    ${proto_srcs}
+    ${grpc_srcs})
+target_compile_features(subscriber_client_app PRIVATE cxx_std_14)
+target_link_libraries(subscriber_client_app
+    subscriber_client
     ${CMAKE_THREAD_LIBS_INIT})
